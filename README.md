@@ -32,7 +32,7 @@ We can run the Writr service (mostly) locally for development purposes.
 (I have not set up a local DynamoDB workflow, so all DB connections will connect to the production database).
 
 1. Start Redis by running `redis-server`
-2. Start the service by running `go run websockets.go`
+2. Start the service by running `go run app/websockets.go`
 3. Explore/test the service by navigating to `http://localhost:8081/`
 
 ## TODOs

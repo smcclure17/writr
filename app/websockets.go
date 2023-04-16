@@ -19,7 +19,7 @@ func main() {
 
 	// HACK: serve temp html file for testing
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "websockets.html")
+		http.ServeFile(w, r, "app/websockets.html")
 	})
 
 	// TODO: think about when/how to save to disk to keep data up to date without too many writes
