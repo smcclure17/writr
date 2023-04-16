@@ -42,5 +42,6 @@ Things to fix/update:
 - Add env variables instead of hard coding values (e.g. port numbers)
 - Improve error handling (see ["Go's Error Handling Is a Form of Storytelling"](https://preslav.me/2023/04/14/golang-error-handling-is-a-form-of-storytelling/))
 - Use Enums for categorical values (e.g. table names)
+- Containerize and deploy (Docker + Docker compose)
 - Scaling (use a message queue behind load-balanced servers)
 - Convert these to Github tickets/issues
