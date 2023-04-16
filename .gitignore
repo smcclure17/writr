@@ -1,7 +1,11 @@
-.terraform
 
+# Terraform files
+.terraform
 terraform.tfstate
 .terraform.lock.hcl
 
+# Redis files
 dump.rdb
 
+# VSCode files
+.vscode
