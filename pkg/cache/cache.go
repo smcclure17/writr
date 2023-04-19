@@ -15,9 +15,6 @@ type Cache struct {
 }
 
 func NewCache() *Cache {
-
-	fmt.Println("Connecting to redis at: ", os.Getenv("REDIS_URL"))
-
 	redisDatabase := redis.NewClient(&redis.Options{
 		Addr: os.Getenv("REDIS_URL"),
 	})
@@ -26,9 +23,7 @@ func NewCache() *Cache {
 	if err != nil {
 		log.Fatal("error with redis database: ", err)
 	}
-
 	fmt.Println("Connected to redis at: ", redisDatabase.Options().Addr)
-
 	return &Cache{
 		Client:  redisDatabase,
 		context: context.Background(),

@@ -36,29 +36,24 @@ func (d *Database) InsertData(tableName string, data models.Message) (bool, erro
 	if tableName != messagesTable {
 		return false, fmt.Errorf("table %s not supported", tableName)
 	}
-
 	_, err := d.Client.Put(ctx, datastore.NameKey(messagesTable, "doc-1", nil), &data)
 	if err != nil {
 		return false, err
 	}
-
 	return true, nil
 }
 
 func (d *Database) GetData(tableName string, documentName string) (models.Message, error) {
 	ctx := context.Background()
-
 	if tableName != messagesTable {
 		return models.Message{}, fmt.Errorf("table %s not supported", tableName)
 	}
 
 	var message models.Message
 	key := datastore.NameKey(messagesTable, documentName, nil)
-
 	err := d.Client.Get(ctx, key, &message)
 	if err != nil {
 		return models.Message{}, err
 	}
-
 	return message, nil
 }
