@@ -9,3 +9,6 @@ dump.rdb
 
 # VSCode files
 .vscode
+
+# Environement files
+*.env

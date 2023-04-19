@@ -2,8 +2,10 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/smcclure17/writr/pkg/cache"
 	"github.com/smcclure17/writr/pkg/database"
 	"github.com/smcclure17/writr/pkg/models"
 	"github.com/smcclure17/writr/pkg/server"
@@ -12,19 +14,19 @@ import (
 
 func main() {
 
-	server := server.NewServer()
 	db := database.NewDatabase()
+	cache := cache.NewCache()
+	server := server.NewServer(*cache, *db)
+	fmt.Println("Created database", db)
 
 	http.Handle("/ws", websocket.Handler(server.HandleConnections))
 
-	// HACK: serve temp html file for testing
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "app/websockets.html")
-	})
-
-	// TODO: think about when/how to save to disk to keep data up to date without too many writes
+	// // TODO: think about when/how to save to disk to keep data up to date without too many writes
 	http.HandleFunc("/save", func(w http.ResponseWriter, r *http.Request) {
-		db.InsertData("Messages", models.CreateMessage("this is a placeholder message", "doc-1"))
+		_, err := db.InsertData("documents", models.CreateMessage("the he he yup!e", "doc-1"))
+		if err != nil {
+			fmt.Println("error inserting data: ", err)
+		}
 
 		w.Write([]byte("success"))
 	})

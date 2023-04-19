@@ -4,62 +4,61 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"cloud.google.com/go/datastore"
 	"github.com/smcclure17/writr/pkg/models"
-	"golang.org/x/exp/slices"
 )
 
 // TODO: Use enums or env vars.
-const messagesTable = "Messages"
+const messagesTable = "documents"
 
 // Database is the main database instance.
 type Database struct {
-	Client *dynamodb.Client
+	Client *datastore.Client
 }
 
 // NewDatabase creates a new database instance.
 func NewDatabase() *Database {
-	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-east-1"))
+	ctx := context.Background()
+	client, err := datastore.NewClient(ctx, "writr-dev-384017")
 	if err != nil {
-		fmt.Printf("unable to load SDK config, %v", err)
+		panic(err)
 	}
+
 	return &Database{
-		Client: dynamodb.NewFromConfig(cfg),
+		Client: client,
 	}
 }
 
 // InsertData inserts message data into the database. For now, only the messages table is supported.
-func (d *Database) InsertData(tableName string, data models.Message) {
+func (d *Database) InsertData(tableName string, data models.Message) (bool, error) {
+	ctx := context.Background()
+
 	if tableName != messagesTable {
-		panic("Table name must be 'messages' for now.")
+		return false, fmt.Errorf("table %s not supported", tableName)
 	}
 
-	tableNames := d.getTableNames()
-	if !slices.Contains(tableNames, tableName) {
-		panic("Table doesn't exist. Make sure AWS is configured correctly and terraform has been run.")
-	}
-
-	out, err := d.Client.PutItem(context.TODO(), &dynamodb.PutItemInput{
-		TableName: aws.String(tableName),
-		Item: map[string]types.AttributeValue{
-			"Name":    &types.AttributeValueMemberS{Value: data.Document}, // TODO: update
-			"Content": &types.AttributeValueMemberS{Value: data.Message},
-		},
-	})
+	_, err := d.Client.Put(ctx, datastore.NameKey(messagesTable, "doc-1", nil), &data)
 	if err != nil {
-		panic(err)
+		return false, err
 	}
-	fmt.Println(out)
+
+	return true, nil
 }
 
-// GetTableNames returns a list of table names in the database.
-func (d *Database) getTableNames() []string {
-	result, err := d.Client.ListTables(context.TODO(), &dynamodb.ListTablesInput{})
-	if err != nil {
-		fmt.Printf("Failed to list tables, %v", err)
+func (d *Database) GetData(tableName string, documentName string) (models.Message, error) {
+	ctx := context.Background()
+
+	if tableName != messagesTable {
+		return models.Message{}, fmt.Errorf("table %s not supported", tableName)
 	}
-	return result.TableNames
+
+	var message models.Message
+	key := datastore.NameKey(messagesTable, documentName, nil)
+
+	err := d.Client.Get(ctx, key, &message)
+	if err != nil {
+		return models.Message{}, err
+	}
+
+	return message, nil
 }

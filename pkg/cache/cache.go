@@ -2,6 +2,9 @@ package cache
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"os"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -12,11 +15,20 @@ type Cache struct {
 }
 
 func NewCache() *Cache {
+
+	fmt.Println("Connecting to redis at: ", os.Getenv("REDIS_URL"))
+
 	redisDatabase := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Addr: os.Getenv("REDIS_URL"),
 	})
+
+	err := redisDatabase.Ping(context.Background()).Err()
+	if err != nil {
+		log.Fatal("error with redis database: ", err)
+	}
+
+	fmt.Println("Connected to redis at: ", redisDatabase.Options().Addr)
+
 	return &Cache{
 		Client:  redisDatabase,
 		context: context.Background(),
