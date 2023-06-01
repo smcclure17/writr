@@ -1,6 +1,6 @@
 # Writr
 
-Backend for Writr, a Google Docs/Notion/Dropbox Paper clone.
+Backend for a Google Docs/Notion/Dropbox Paper clone.
 
 ## Setup
 
